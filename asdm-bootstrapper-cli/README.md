@@ -54,7 +54,3 @@ To use the ASDM Bootstrapper CLI, follow these steps:
 # Contributing
 
 Contributions are welcome! If you have any ideas for improvements or new features, please feel free to open an issue or submit a pull request.
-
-# License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
