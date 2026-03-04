@@ -11,11 +11,11 @@ There is also a [INSTALL.md](https://platform.asdm.ai/_artifacts/cli/INSTALL.md)
   - use `asdm toolset install {toolset-id}` command to save to `.asdm/toolsets/{toolset-id}` folder for toolsets
   - use `asdm context install {context-id}` command to save to `.asdm/contexts/{context-id}` folder for contexts
   - use `asdm spec install {spec-id}` command to save to `.asdm/specs/{spec-id}` folder for specs
-- Update 
+- Update ASDM resources in your workspace 
 
 # Resource Hosting
 
-All resoruces are hosted on [ASDM platform](https://platform.asdm.ai) using the [_artifacts](https://platform.asdm.ai/_artifacts) endpoint.
+All resources are hosted on [ASDM platform](https://platform.asdm.ai) using the [_artifacts](https://platform.asdm.ai/_artifacts) endpoint.
 
 # Usage
 
@@ -27,29 +27,43 @@ To use the ASDM Bootstrapper CLI, follow these steps:
    npm install -g @leansoftx/asdm-bootstrapper-cli
    ```
 
-2. Run the CLI List command to see available ASDM library resources:
+2. Available commands:
 
-   ```bash
-   asdm toolset list
-   asdm context list
-   asdm spec list
-   ```
+| Command | Description |
+|---------|-------------|
+| `asdm toolset list` | List all available ASDM toolsets |
+| `asdm toolset install <toolset-id>` | Download and install a specific ASDM toolset |
+| `asdm toolset update <toolset-id>` | Update a specific ASDM toolset to the latest version |
+| `asdm toolset uninstall <toolset-id>` | Uninstall a specific ASDM toolset |
+| `asdm spec list` | List all available ASDM specs |
+| `asdm spec install <spec-id>` | Download and install a specific ASDM spec |
+| `asdm spec update <spec-id>` | Update a specific ASDM spec to the latest version |
+| `asdm spec uninstall <spec-id>` | Uninstall a specific ASDM spec |
+| `asdm context list` | List all available ASDM contexts |
+| `asdm context install <context-id>` | Download and install a specific ASDM context |
+| `asdm context update <context-id>` | Update a specific ASDM context to the latest version |
+| `asdm context uninstall <context-id>` | Uninstall a specific ASDM context |
 
-3. Run the CLI install command to download a specific library resource into your workspace:
+# Folder Structure
 
-   ```bash
-   asdm toolset install <toolset-id>
-   asdm context install <context-id>
-   asdm spec install <spec-id>
-   ```
+When you use the ASDM CLI to install resources, they are stored in the `.asdm` directory within your workspace. The folder structure is as follows:
 
-4. Run the CLI update command to update a specific library resource in your workspace:
+```
+.asdm/
+├── toolsets/
+│   └── {toolset-id}/
+│       └── (toolset files)
+├── contexts/
+│   └── {context-id}/
+│       └── (context files)
+└── specs/
+    └── {spec-id}/
+        └── (spec files)
+```
 
-   ```bash
-   asdm toolset update <toolset-id>
-   asdm context update <context-id>
-   asdm spec update <spec-id>
-   ```
+- **`.asdm/toolsets/`** - Contains installed ASDM toolsets (e.g., `.asdm/toolsets/{toolset-id}`)
+- **`.asdm/contexts/`** - Contains installed ASDM contexts (e.g., `.asdm/contexts/{context-id}`)
+- **`.asdm/specs/`** - Contains installed ASDM specs (e.g., `.asdm/specs/{spec-id}`)
 
 # Contributing
 
