@@ -1,6 +1,6 @@
 {
   "name": "@leansoftx/asdm-bootstrapper-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ASDM Bootstrapper CLI Tool",
   "main": "dist/index.js",
   "bin": {

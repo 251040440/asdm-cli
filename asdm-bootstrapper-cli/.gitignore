@@ -33,3 +33,6 @@ yarn-error.log*
 # Testing
 coverage/
 .nyc_output/
+
+# build packages
+*.tgz
