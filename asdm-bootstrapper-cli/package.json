@@ -1,0 +1,39 @@
+{
+  "name": "@leansoftx/asdm-bootstrapper-cli",
+  "version": "0.1.1",
+  "description": "ASDM Bootstrapper CLI Tool",
+  "main": "dist/index.js",
+  "bin": {
+    "asdm": "dist/index.js",
+    "asdm-bootstrapper": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "package": "npm run build && npm pack",
+    "publish": "npm run build && npm publish"
+  },
+  "keywords": [
+    "asdm",
+    "cli",
+    "bootstrapper"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.5",
+    "@types/cli-table": "^0.3.4",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
+    "commander": "^11.0.0",
+    "dotenv": "^16.0.0"
+  }
+}
