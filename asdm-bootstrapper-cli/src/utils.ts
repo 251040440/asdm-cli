@@ -2,17 +2,20 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import AdmZip from 'adm-zip';
-import { ToolsetRegistry, SpecsRegistry, ContextsRegistry, Toolset, Spec, Context } from './types';
+import { ToolsetRegistry, SpecsRegistry, ContextsRegistry, SkillsRegistry, Toolset, Spec, Context, Skill } from './types';
 import { 
   TOOLSET_REGISTRY_URL, 
   SPECS_REGISTRY_URL, 
   CONTEXTS_REGISTRY_URL,
+  SKILLS_REGISTRY_URL,
   TOOLSET_BASE_URL, 
   SPECS_BASE_URL,
   CONTEXTS_BASE_URL,
+  SKILLS_BASE_URL,
   LOCAL_TOOLSETS_DIR,
   LOCAL_SPECS_DIR,
   LOCAL_CONTEXTS_DIR,
+  LOCAL_SKILLS_DIR,
   SKIP_SSL_VERIFICATION
 } from './config';
 import * as https from 'https';
@@ -272,6 +275,67 @@ export function removeSpec(specId: string): void {
  */
 export function removeContext(contextId: string): void {
   const installPath = getContextInstallPath(contextId);
+  if (fs.existsSync(installPath)) {
+    fs.rmSync(installPath, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Fetch the skills registry
+ */
+export async function fetchSkillsRegistry(): Promise<SkillsRegistry> {
+  try {
+    const axiosInstance = createAxiosInstance();
+    const response = await axiosInstance.get<SkillsRegistry>(SKILLS_REGISTRY_URL);
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to fetch skills registry: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Download a skill ZIP file
+ */
+export async function downloadSkill(skillId: string, downloadUrl: string): Promise<{ buffer: Buffer; actualUrl: string }> {
+  const fullDownloadUrl = downloadUrl.startsWith('http') 
+    ? downloadUrl 
+    : `${SKILLS_BASE_URL}/${downloadUrl}`;
+  
+  try {
+    const axiosInstance = createAxiosInstance();
+    const response = await axiosInstance.get(fullDownloadUrl, {
+      responseType: 'arraybuffer'
+    });
+    return { 
+      buffer: Buffer.from(response.data),
+      actualUrl: fullDownloadUrl
+    };
+  } catch (error) {
+    throw new Error(`Failed to download skill: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Get the installation path for a skill
+ */
+export function getSkillInstallPath(skillId: string): string {
+  const cwd = process.cwd();
+  return path.join(cwd, LOCAL_SKILLS_DIR, skillId);
+}
+
+/**
+ * Check if a skill is already installed
+ */
+export function isSkillInstalled(skillId: string): boolean {
+  const installPath = getSkillInstallPath(skillId);
+  return fs.existsSync(installPath);
+}
+
+/**
+ * Remove an installed skill
+ */
+export function removeSkill(skillId: string): void {
+  const installPath = getSkillInstallPath(skillId);
   if (fs.existsSync(installPath)) {
     fs.rmSync(installPath, { recursive: true, force: true });
   }

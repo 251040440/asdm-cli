@@ -7,20 +7,25 @@ import {
   fetchToolsetRegistry,
   fetchSpecsRegistry,
   fetchContextsRegistry,
+  fetchSkillsRegistry,
   downloadToolset,
   downloadSpec,
   downloadContext,
+  downloadSkill,
   extractZip,
   ensureDirectoryExists,
   getToolsetInstallPath,
   getSpecInstallPath,
   getContextInstallPath,
+  getSkillInstallPath,
   isToolsetInstalled,
   isSpecInstalled,
   isContextInstalled,
+  isSkillInstalled,
   removeToolset,
   removeSpec,
-  removeContext
+  removeContext,
+  removeSkill
 } from './utils';
 
 // Read version from package.json
@@ -598,6 +603,194 @@ contextCommand
       removeContext(contextId);
 
       console.log(chalk.green(`✓ Successfully uninstalled '${contextId}'`));
+      console.log(chalk.gray(`Removed from: ${installPath}`));
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      process.exit(1);
+    }
+  });
+
+// ==================== SKILL COMMANDS ====================
+
+// Create skill subcommand
+const skillCommand = program
+  .command('skill')
+  .description('Skill management commands');
+
+// Skill list command
+skillCommand
+  .command('list')
+  .description('List all available ASDM skills')
+  .action(async () => {
+    try {
+      console.log(chalk.blue('Fetching available ASDM skills...'));
+      const { SKILLS_REGISTRY_URL } = await import('./config');
+      console.log(chalk.gray(`Registry URL: ${SKILLS_REGISTRY_URL}`));
+
+      const registry = await fetchSkillsRegistry();
+
+      console.log(chalk.green(`\nAvailable skills (Registry version: ${registry.version}):\n`));
+
+      if (registry.skills.length === 0) {
+        console.log(chalk.yellow('No skills available.'));
+        return;
+      }
+
+      // Create table
+      const table = new Table({
+        head: [
+          chalk.cyan.bold('Status'),
+          chalk.cyan.bold('ID'),
+          chalk.cyan.bold('Version'),
+          chalk.cyan.bold('Name'),
+          chalk.cyan.bold('Description')
+        ],
+        colWidths: [15, 35, 10, 35, 50],
+        wordWrap: true
+      });
+
+      registry.skills.forEach((skill) => {
+        const installed = isSkillInstalled(skill.id);
+        const status = installed ? chalk.green('✓ Installed') : chalk.gray('○ Available');
+
+        table.push([
+          status,
+          chalk.bold(skill.id),
+          skill.version,
+          skill.name,
+          skill.description
+        ]);
+      });
+
+      console.log(table.toString());
+      console.log(chalk.gray(`\nTotal: ${registry.skills.length} skills`));
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      process.exit(1);
+    }
+  });
+
+// Skill install command
+skillCommand
+  .command('install <skill-id>')
+  .description('Download and install a specific ASDM skill')
+  .action(async (skillId: string) => {
+    try {
+      console.log(chalk.blue(`Installing skill: ${skillId}...`));
+
+      // Check if already installed
+      if (isSkillInstalled(skillId)) {
+        console.log(chalk.yellow(`Skill '${skillId}' is already installed.`));
+        console.log(chalk.gray(`Location: ${getSkillInstallPath(skillId)}`));
+        return;
+      }
+
+      // Fetch registry to validate skill exists
+      console.log(chalk.blue('Fetching registry...'));
+      const registry = await fetchSkillsRegistry();
+      const skill = registry.skills.find(s => s.id === skillId);
+
+      if (!skill) {
+        console.error(chalk.red(`Error: Skill '${skillId}' not found in registry.`));
+        console.log(chalk.gray('Run "asdm skill list" to see available skills.'));
+        process.exit(1);
+      }
+
+      // Download skill
+      console.log(chalk.blue(`Downloading ${skill.name} (v${skill.version})...`));
+      const downloadResult = await downloadSkill(skillId, skill.downloadUrl);
+      console.log(chalk.gray(`  Downloading from: ${downloadResult.actualUrl}`));
+
+      // Prepare installation directory
+      const installPath = getSkillInstallPath(skillId);
+      ensureDirectoryExists(installPath);
+
+      // Extract skill
+      console.log(chalk.blue('Extracting files...'));
+      extractZip(downloadResult.buffer, installPath);
+
+      console.log(chalk.green(`✓ Successfully installed '${skillId}'`));
+      console.log(chalk.gray(`Location: ${installPath}`));
+
+      // Output instruction for AI Model
+      const installMdPath = `${installPath}/INSTALL.md`;
+      console.log(chalk.cyan('\nAI Model Instruction:'));
+      console.log(chalk.white(`  follow instructions ${installMdPath}`));
+    } catch (error) {
+      console.log(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      process.exit(1);
+    }
+  });
+
+// Skill update command
+skillCommand
+  .command('update <skill-id>')
+  .description('Update a specific ASDM skill')
+  .action(async (skillId: string) => {
+    try {
+      console.log(chalk.blue(`Updating skill: ${skillId}...`));
+
+      // Check if installed
+      if (!isSkillInstalled(skillId)) {
+        console.log(chalk.yellow(`Skill '${skillId}' is not installed.`));
+        console.log(chalk.gray('Run "asdm skill install <skill-id>" to install it first.'));
+        return;
+      }
+
+      // Remove old version
+      console.log(chalk.blue('Removing old version...'));
+      removeSkill(skillId);
+
+      // Fetch registry to get latest version
+      console.log(chalk.blue('Fetching latest version...'));
+      const registry = await fetchSkillsRegistry();
+      const skill = registry.skills.find(s => s.id === skillId);
+
+      if (!skill) {
+        console.error(chalk.red(`Error: Skill '${skillId}' not found in registry.`));
+        process.exit(1);
+      }
+
+      // Download and install new version
+      console.log(chalk.blue(`Downloading ${skill.name} (v${skill.version})...`));
+      const downloadResult = await downloadSkill(skillId, skill.downloadUrl);
+
+      const installPath = getSkillInstallPath(skillId);
+      ensureDirectoryExists(installPath);
+
+      console.log(chalk.blue('Extracting files...'));
+      extractZip(downloadResult.buffer, installPath);
+
+      console.log(chalk.green(`✓ Successfully updated '${skillId}' to v${skill.version}`));
+      console.log(chalk.gray(`Location: ${installPath}`));
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      process.exit(1);
+    }
+  });
+
+// Skill uninstall command
+skillCommand
+  .command('uninstall <skill-id>')
+  .description('Uninstall a specific ASDM skill')
+  .action(async (skillId: string) => {
+    try {
+      console.log(chalk.blue(`Uninstalling skill: ${skillId}...`));
+
+      // Check if installed
+      if (!isSkillInstalled(skillId)) {
+        console.log(chalk.yellow(`Skill '${skillId}' is not installed.`));
+        console.log(chalk.gray('Run "asdm skill list" to see installed skills.'));
+        return;
+      }
+
+      const installPath = getSkillInstallPath(skillId);
+
+      // Remove skill
+      console.log(chalk.blue('Removing files...'));
+      removeSkill(skillId);
+
+      console.log(chalk.green(`✓ Successfully uninstalled '${skillId}'`));
       console.log(chalk.gray(`Removed from: ${installPath}`));
     } catch (error) {
       console.error(chalk.red(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`));

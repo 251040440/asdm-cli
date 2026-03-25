@@ -22,6 +22,14 @@ export interface Context {
   downloadUrl: string;
 }
 
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  version: string;
+  downloadUrl: string;
+}
+
 export interface ToolsetRegistry {
   version: string;
   toolsets: Toolset[];
@@ -35,4 +43,9 @@ export interface SpecsRegistry {
 export interface ContextsRegistry {
   version: string;
   contexts: Context[];
+}
+
+export interface SkillsRegistry {
+  version: string;
+  skills: Skill[];
 }

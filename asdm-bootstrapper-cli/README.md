@@ -11,7 +11,8 @@ There is also a [INSTALL.md](https://platform.asdm.ai/_artifacts/cli/INSTALL.md)
   - use `asdm toolset install {toolset-id}` command to save to `.asdm/toolsets/{toolset-id}` folder for toolsets
   - use `asdm context install {context-id}` command to save to `.asdm/contexts/{context-id}` folder for contexts
   - use `asdm spec install {spec-id}` command to save to `.asdm/specs/{spec-id}` folder for specs
-- Update ASDM resources in your workspace 
+  - use `asdm skill install {skill-id}` command to save to `.asdm/skills/{skill-id}` folder for skills
+- Update ASDM resources in your workspace
 
 # Resource Hosting
 
@@ -43,6 +44,10 @@ To use the ASDM Bootstrapper CLI, follow these steps:
 | `asdm context install <context-id>` | Download and install a specific ASDM context |
 | `asdm context update <context-id>` | Update a specific ASDM context to the latest version |
 | `asdm context uninstall <context-id>` | Uninstall a specific ASDM context |
+| `asdm skill list` | List all available ASDM skills |
+| `asdm skill install <skill-id>` | Download and install a specific ASDM skill |
+| `asdm skill update <skill-id>` | Update a specific ASDM skill to the latest version |
+| `asdm skill uninstall <skill-id>` | Uninstall a specific ASDM skill |
 
 # Folder Structure
 
@@ -56,14 +61,18 @@ When you use the ASDM CLI to install resources, they are stored in the `.asdm` d
 ├── contexts/
 │   └── {context-id}/
 │       └── (context files)
-└── specs/
-    └── {spec-id}/
-        └── (spec files)
+├── specs/
+│   └── {spec-id}/
+│       └── (spec files)
+└── skills/
+    └── {skill-id}/
+        └── (skill files)
 ```
 
 - **`.asdm/toolsets/`** - Contains installed ASDM toolsets (e.g., `.asdm/toolsets/{toolset-id}`)
 - **`.asdm/contexts/`** - Contains installed ASDM contexts (e.g., `.asdm/contexts/{context-id}`)
 - **`.asdm/specs/`** - Contains installed ASDM specs (e.g., `.asdm/specs/{spec-id}`)
+- **`.asdm/skills/`** - Contains installed ASDM skills (e.g., `.asdm/skills/{skill-id}`)
 
 # Contributing
 
